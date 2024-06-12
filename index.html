@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <title> COINNMAN! </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css" type="text/css">
+    
+  </head>
+  <body>
+
+    <div class="game-container">
+    </div>
+    <div class="player-info">
+      <div>
+        <label for="player-name">Your Name</label>
+        <input id="player-name" maxlength="10" type="text" />
+      </div>
+      <div>
+        <button id="player-color">Change Color</button>
+      </div>
+    </div>
+
+    <div class="chat-container">
+      <div class="chat-messages" id="chat-messages"></div>
+      <input type="text" id="chat-input" placeholder="Type your message..." />
+      <button id="send-chat">Send</button>
+    </div>
+    
+
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script>
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyBMq_aqGv4N9BzmCb3WTemG46YM4hojphE",
+        authDomain: "game-87a94.firebaseapp.com",
+        databaseURL: "https://game-87a94-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "game-87a94",
+        storageBucket: "game-87a94.appspot.com",
+        messagingSenderId: "938955968330",
+        appId: "1:938955968330:web:a7b7a01d82f55a7de73bb3"
+      };
+      firebase.initializeApp(firebaseConfig);
+
+      const db = firebase.database();
+  const chatRef = db.ref("chats");
+
+  window.addEventListener("load", () => {
+  chatRef.remove()
+    .then(() => {
+      console.log("Chat history cleared successfully!");
+    })
+    .catch(error => {
+      console.error("Error clearing chat history:", error);
+    });
+});
+
+  // Elements
+  const chatMessages = document.getElementById("chat-messages");
+  const chatInput = document.getElementById("chat-input");
+  const sendChatButton = document.getElementById("send-chat");
+
+  // Send chat message
+  sendChatButton.addEventListener("click", () => {
+    const message = chatInput.value.trim();
+    if (message !== "") {
+      chatRef.push({
+        name: document.getElementById("player-name").value || "Anonymous",
+        message,
+        timestamp: Date.now()
+      });
+      chatInput.value = "";
+    }
+  });
+
+  // Listen for new chat messages
+  chatRef.on("child_added", (snapshot) => {
+    const chat = snapshot.val();
+    displayMessage(chat.name, chat.message);
+  });
+
+  // Display chat message
+  function displayMessage(name, message) {
+    const messageElement = document.createElement("div");
+    messageElement.textContent = `${name}: ${message}`;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+    </script>
+
+
+
+
+    <script src="/KeyPressListener.js"></script>
+    <script src="/app.js"></script>
+    <script src="/TouchListener.js"></script>
+
+  </body>
+</html>
